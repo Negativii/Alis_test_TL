@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Тест типа личности</title>
+  <meta name="description" content="Пройдите короткий тест и узнайте свой тип личности по системе MBTI." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main id="app">
+    <!-- Экран 1: приветствие -->
+    <section id="screen-intro" class="screen card">
+      <h1>Кто ты по типу личности?</h1>
+      <p class="lead">
+        Ответь на 24 коротких вопроса и узнай свой тип личности по системе
+        MBTI: сильные стороны, стиль общения и подход к работе.
+      </p>
+      <p class="meta">24 вопроса · около 3 минут · без регистрации</p>
+      <button id="btn-start" type="button" class="btn btn-primary">Начать тест</button>
+    </section>
+
+    <!-- Экран 2: вопросы -->
+    <section id="screen-quiz" class="screen card hidden">
+      <div class="progress">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="progress-text" id="progress-text">Вопрос 1 из 24</div>
+      <h2 class="question" id="question-text"></h2>
+      <div class="options" id="options"></div>
+      <button id="btn-back" type="button" class="btn btn-ghost">← Назад</button>
+    </section>
+
+    <!-- Экран 3: результат -->
+    <section id="screen-result" class="screen card hidden">
+      <div class="result-code" id="result-code"></div>
+      <h2 class="result-title" id="result-title"></h2>
+      <div class="result-group" id="result-group"></div>
+      <p class="result-summary" id="result-summary"></p>
+
+      <div class="axes" id="result-axes"></div>
+      <div class="result-sections" id="result-sections"></div>
+
+      <button id="btn-restart" type="button" class="btn btn-primary">Пройти заново</button>
+    </section>
+  </main>
+
+  <footer class="foot">
+    Тест носит развлекательно-познавательный характер и не заменяет консультацию специалиста.
+  </footer>
+
+  <script src="js/questions.js"></script>
+  <script src="js/types.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

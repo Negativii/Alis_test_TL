@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Node (на случай сборки в будущем)
+node_modules/
+dist/
+npm-debug.log*
+
+# Логи и временное
+*.log
+tmp/
