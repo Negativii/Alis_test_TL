@@ -155,3 +155,19 @@ const TYPES = {
     work: "Хорош в живой работе с людьми и событиями.",
   },
 };
+
+// Цветовая тема под каждую группу (темперамент)
+const GROUP_THEME = {
+  "Аналитик (NT)":  { color: "#7c5cff", color2: "#a78bff", family: "Аналитики" },
+  "Дипломат (NF)":  { color: "#12a074", color2: "#3fd39a", family: "Дипломаты" },
+  "Хранитель (SJ)": { color: "#2f7fd1", color2: "#5cb2ec", family: "Хранители" },
+  "Искатель (SP)":  { color: "#df8f1f", color2: "#f6c34c", family: "Искатели" },
+};
+
+// Эмодзи-аватар каждого типа
+const TYPE_EMOJI = {
+  INTJ: "🧠", INTP: "🔬", ENTJ: "🚀", ENTP: "💡",
+  INFJ: "🌙", INFP: "🕊️", ENFJ: "🌟", ENFP: "🎈",
+  ISTJ: "📋", ISFJ: "🛡️", ESTJ: "🏛️", ESFJ: "🤝",
+  ISTP: "🔧", ISFP: "🎨", ESTP: "⚡", ESFP: "🎉",
+};

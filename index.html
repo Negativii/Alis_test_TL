@@ -4,44 +4,79 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Тест типа личности</title>
-  <meta name="description" content="Пройдите короткий тест и узнайте свой тип личности по системе MBTI." />
+  <meta name="description" content="Пройдите короткий тест и узнайте свой тип личности по системе MBTI: сильные стороны, стиль общения и подход к работе." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <div class="bg-orbs" aria-hidden="true"><span></span><span></span><span></span></div>
+
   <main id="app">
     <!-- Экран 1: приветствие -->
     <section id="screen-intro" class="screen card">
-      <h1>Кто ты по типу личности?</h1>
+      <div class="intro-badge">MBTI · 16 типов личности</div>
+      <h1>Кто ты по&nbsp;типу личности?</h1>
       <p class="lead">
-        Ответь на 24 коротких вопроса и узнай свой тип личности по системе
-        MBTI: сильные стороны, стиль общения и подход к работе.
+        Ответь на 24 коротких вопроса и узнай свой тип: сильные стороны,
+        стиль общения и подход к работе и команде.
       </p>
+
+      <div class="dims">
+        <div class="dim"><span class="dim-pair">E / I</span><span class="dim-name">Энергия</span></div>
+        <div class="dim"><span class="dim-pair">S / N</span><span class="dim-name">Информация</span></div>
+        <div class="dim"><span class="dim-pair">T / F</span><span class="dim-name">Решения</span></div>
+        <div class="dim"><span class="dim-pair">J / P</span><span class="dim-name">Образ жизни</span></div>
+      </div>
+
+      <button id="btn-start" type="button" class="btn btn-primary btn-lg">Начать тест →</button>
       <p class="meta">24 вопроса · около 3 минут · без регистрации</p>
-      <button id="btn-start" type="button" class="btn btn-primary">Начать тест</button>
     </section>
 
     <!-- Экран 2: вопросы -->
     <section id="screen-quiz" class="screen card hidden">
-      <div class="progress">
-        <div class="progress-bar" id="progress-bar"></div>
+      <div class="quiz-top">
+        <div class="progress">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="progress-text" id="progress-text">Вопрос 1 из 24</div>
       </div>
-      <div class="progress-text" id="progress-text">Вопрос 1 из 24</div>
+
       <h2 class="question" id="question-text"></h2>
-      <div class="options" id="options"></div>
-      <button id="btn-back" type="button" class="btn btn-ghost">← Назад</button>
+
+      <div class="scale">
+        <span class="scale-end scale-end--no">Не&nbsp;согласен</span>
+        <div class="scale-circles" id="scale-circles"></div>
+        <span class="scale-end scale-end--yes">Согласен</span>
+      </div>
+
+      <div class="quiz-nav">
+        <button id="btn-back" type="button" class="btn btn-ghost">← Назад</button>
+        <span class="hint">Можно нажимать клавиши 1–5</span>
+      </div>
     </section>
 
     <!-- Экран 3: результат -->
     <section id="screen-result" class="screen card hidden">
-      <div class="result-code" id="result-code"></div>
-      <h2 class="result-title" id="result-title"></h2>
-      <div class="result-group" id="result-group"></div>
+      <div class="result-head">
+        <div class="result-emoji" id="result-emoji"></div>
+        <div class="result-code" id="result-code"></div>
+        <h2 class="result-title" id="result-title"></h2>
+        <div class="result-group" id="result-group"></div>
+      </div>
+
       <p class="result-summary" id="result-summary"></p>
 
       <div class="axes" id="result-axes"></div>
+
       <div class="result-sections" id="result-sections"></div>
 
-      <button id="btn-restart" type="button" class="btn btn-primary">Пройти заново</button>
+      <div class="result-actions">
+        <button id="btn-share" type="button" class="btn btn-primary">Поделиться результатом</button>
+        <button id="btn-restart" type="button" class="btn btn-ghost">Пройти заново</button>
+      </div>
+      <div class="share-hint" id="share-hint" hidden>Ссылка скопирована в буфер обмена ✓</div>
     </section>
   </main>
 
