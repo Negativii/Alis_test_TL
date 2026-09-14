@@ -291,3 +291,66 @@ h3 { font-size: 0.98rem; font-weight: 700; margin: 0; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 .animate-in { animation: fadeUp 0.4s cubic-bezier(.2,.7,.2,1) both; }
 @media (prefers-reduced-motion: reduce) { .animate-in { animation: none; } }
+
+/* ============================================================
+   Экран выбора теста
+   ============================================================ */
+#screen-chooser { text-align: center; }
+#screen-chooser .lead { max-width: 40ch; margin: 0 auto 24px; }
+.chooser-list { display: flex; flex-direction: column; gap: 14px; text-align: left; }
+.test-card {
+  --card-accent: var(--accent); --card-accent-2: var(--accent-2);
+  display: flex; align-items: center; gap: 16px;
+  width: 100%; font: inherit; text-align: left; cursor: pointer;
+  background: var(--card-2); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 18px 20px;
+  transition: transform 0.1s ease, border-color 0.15s ease, box-shadow 0.2s ease;
+}
+.test-card:hover {
+  border-color: var(--card-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -14px color-mix(in srgb, var(--card-accent) 60%, transparent);
+}
+.test-card-emoji {
+  flex: 0 0 auto; width: 58px; height: 58px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.7rem;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent) 20%, transparent), color-mix(in srgb, var(--card-accent-2) 20%, transparent));
+  border: 1px solid color-mix(in srgb, var(--card-accent) 30%, transparent);
+}
+.test-card-body { flex: 1 1 auto; min-width: 0; }
+.test-card-body h3 { font-size: 1.1rem; color: var(--text); margin: 0 0 3px; }
+.test-card-body p { margin: 0 0 6px; font-size: 0.9rem; color: var(--muted); }
+.test-card-meta { font-size: 0.78rem; color: var(--muted); opacity: 0.85; }
+.test-card-go { flex: 0 0 auto; font-size: 1.5rem; font-weight: 800; color: var(--card-accent); }
+
+/* ============================================================
+   Заголовок прохождения
+   ============================================================ */
+.quiz-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.quiz-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.btn-linkish { background: none; border: none; font: inherit; font-size: 0.82rem; color: var(--muted); cursor: pointer; padding: 4px; }
+.btn-linkish:hover { color: var(--text); }
+
+/* Подсказка/утверждение над шкалой */
+.q-prompt { font-size: clamp(1.2rem, 3vw, 1.5rem); font-weight: 700; line-height: 1.35; margin: 0 0 30px; min-height: 2.2em; }
+.q-prompt.q-prompt--hint { font-size: 0.95rem; font-weight: 600; color: var(--muted); text-align: center; min-height: 0; margin-bottom: 22px; }
+
+/* Биполярный формат: формулировки по краям крупнее и читаемее */
+.scale--bipolar .scale-end { width: auto; max-width: 130px; font-size: 0.98rem; font-weight: 700; color: var(--text); }
+@media (max-width: 560px) { .scale--bipolar .scale-end { max-width: 90px; font-size: 0.86rem; } }
+
+/* ============================================================
+   Столбики результата эннеаграммы (метры)
+   ============================================================ */
+.meter { }
+.meter-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.88rem; color: var(--muted); margin-bottom: 7px; }
+.meter-pct { font-weight: 600; }
+.meter--top .meter-head { color: var(--text); font-weight: 800; }
+.meter--top .meter-pct { color: var(--type-color); }
+.meter:not(.meter--top) .axis-fill { opacity: 0.45; }
+
+/* ============================================================
+   Действия результата: строка из двух ghost-кнопок
+   ============================================================ */
+.result-actions-row { display: flex; gap: 10px; }
+.result-actions-row .btn { flex: 1 1 0; }

@@ -1,31 +1,39 @@
-// Логика теста: показ вопросов, сбор ответов, подсчёт типа, вывод результата.
+/* ============================================================
+   Движок мультитеста: выбор теста → прохождение → результат.
+   Поддерживает два формата вопросов: "bipolar" (две формулировки)
+   и "agree" (утверждение + шкала согласия). Оба — шкала 1..5.
+   ============================================================ */
 (function () {
   "use strict";
 
-  var state = {
-    index: 0,
-    answers: new Array(QUESTIONS.length).fill(null),
-  };
+  var TESTS = [MBTI_TEST, ENNEAGRAM_TEST];
 
-  // Шкала ответов: значение 1..5, тон и размер кружка
   var SCALE = [
-    { value: 1, tone: "no",      size: 2, label: "Совсем не согласен" },
-    { value: 2, tone: "no",      size: 1, label: "Скорее не согласен" },
-    { value: 3, tone: "neutral", size: 0, label: "Нейтрально" },
-    { value: 4, tone: "yes",     size: 1, label: "Скорее согласен" },
-    { value: 5, tone: "yes",     size: 2, label: "Полностью согласен" },
+    { value: 1, tone: "no",      size: 2 },
+    { value: 2, tone: "no",      size: 1 },
+    { value: 3, tone: "neutral", size: 0 },
+    { value: 4, tone: "yes",     size: 1 },
+    { value: 5, tone: "yes",     size: 2 },
   ];
+  var LABELS = ["Совсем нет", "Скорее нет", "Нейтрально", "Скорее да", "Точно да"];
+
+  var state = { test: null, index: 0, answers: [] };
 
   var screens = {
-    intro: document.getElementById("screen-intro"),
+    chooser: document.getElementById("screen-chooser"),
     quiz: document.getElementById("screen-quiz"),
     result: document.getElementById("screen-result"),
   };
   var el = {
+    chooserList: document.getElementById("chooser-list"),
     circles: document.getElementById("scale-circles"),
-    question: document.getElementById("question-text"),
+    prompt: document.getElementById("q-prompt"),
+    scale: document.getElementById("scale"),
+    scaleLeft: document.getElementById("scale-left"),
+    scaleRight: document.getElementById("scale-right"),
     progressBar: document.getElementById("progress-bar"),
     progressText: document.getElementById("progress-text"),
+    quizTitle: document.getElementById("quiz-title"),
     back: document.getElementById("btn-back"),
     shareHint: document.getElementById("share-hint"),
   };
@@ -37,14 +45,52 @@
     animateIn(screens[name]);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-
   function animateIn(node) {
     node.classList.remove("animate-in");
-    void node.offsetWidth; // перезапуск анимации
+    void node.offsetWidth;
     node.classList.add("animate-in");
   }
 
-  // --- Шкала (строится один раз) ---
+  // --- Экран выбора теста ---
+  function renderChooser() {
+    el.chooserList.innerHTML = "";
+    TESTS.forEach(function (t) {
+      var card = document.createElement("button");
+      card.type = "button";
+      card.className = "test-card";
+      card.style.setProperty("--card-accent", t.accent);
+      card.style.setProperty("--card-accent-2", t.accent2);
+
+      var emoji = document.createElement("div");
+      emoji.className = "test-card-emoji";
+      emoji.textContent = t.emoji;
+
+      var body = document.createElement("div");
+      body.className = "test-card-body";
+      var h = document.createElement("h3");
+      h.textContent = t.title;
+      var p = document.createElement("p");
+      p.textContent = t.subtitle;
+      var meta = document.createElement("span");
+      meta.className = "test-card-meta";
+      meta.textContent = t.meta;
+      body.appendChild(h);
+      body.appendChild(p);
+      body.appendChild(meta);
+
+      var go = document.createElement("span");
+      go.className = "test-card-go";
+      go.textContent = "→";
+
+      card.appendChild(emoji);
+      card.appendChild(body);
+      card.appendChild(go);
+      card.addEventListener("click", function () { startTest(t); });
+      el.chooserList.appendChild(card);
+    });
+  }
+
+  // --- Шкала (кружки) ---
   function buildScale() {
     el.circles.innerHTML = "";
     SCALE.forEach(function (s) {
@@ -52,21 +98,45 @@
       b.type = "button";
       b.className = "circle tone-" + s.tone + " sz-" + s.size;
       b.dataset.value = String(s.value);
-      b.setAttribute("aria-label", s.label);
-      b.title = s.label;
+      b.setAttribute("aria-label", LABELS[s.value - 1]);
+      b.title = LABELS[s.value - 1];
       b.addEventListener("click", function () { selectAnswer(s.value); });
       el.circles.appendChild(b);
     });
   }
 
+  // --- Старт теста ---
+  function startTest(test) {
+    state.test = test;
+    state.index = 0;
+    state.answers = new Array(test.questions.length).fill(null);
+    el.quizTitle.textContent = test.title;
+    show("quiz");
+    renderQuestion();
+  }
+
   // --- Экран вопроса ---
   function renderQuestion() {
-    var q = QUESTIONS[state.index];
-    var total = QUESTIONS.length;
+    var test = state.test;
+    var q = test.questions[state.index];
+    var total = test.questions.length;
 
-    el.question.textContent = q.text;
     el.progressText.textContent = "Вопрос " + (state.index + 1) + " из " + total;
     el.progressBar.style.width = (state.index / total) * 100 + "%";
+
+    if (test.format === "bipolar") {
+      el.prompt.textContent = "Что тебе ближе?";
+      el.prompt.classList.add("q-prompt--hint");
+      el.scale.classList.add("scale--bipolar");
+      el.scaleLeft.textContent = q.left;
+      el.scaleRight.textContent = q.right;
+    } else {
+      el.prompt.textContent = q.text;
+      el.prompt.classList.remove("q-prompt--hint");
+      el.scale.classList.remove("scale--bipolar");
+      el.scaleLeft.textContent = "Не согласен";
+      el.scaleRight.textContent = "Согласен";
+    }
 
     var current = state.answers[state.index];
     [].forEach.call(el.circles.children, function (c) {
@@ -74,128 +144,119 @@
     });
 
     el.back.style.visibility = state.index === 0 ? "hidden" : "visible";
-
-    animateIn(el.question);
-    animateIn(el.circles);
+    animateIn(el.prompt);
+    animateIn(el.scale);
   }
 
   function selectAnswer(value) {
+    if (!state.test) return;
     state.answers[state.index] = value;
     [].forEach.call(el.circles.children, function (c) {
       c.classList.toggle("selected", Number(c.dataset.value) === value);
     });
     setTimeout(function () {
-      if (state.index < QUESTIONS.length - 1) {
+      if (state.index < state.test.questions.length - 1) {
         state.index++;
-        el.progressBar.style.width = (state.index / QUESTIONS.length) * 100 + "%";
         renderQuestion();
       } else {
-        showResult();
+        renderResult(state.test.score(state.answers));
       }
-    }, 220);
+    }, 200);
   }
 
   function goBack() {
-    if (state.index > 0) {
-      state.index--;
-      renderQuestion();
-    }
-  }
-
-  // --- Подсчёт результата ---
-  function computeResult() {
-    var sums = { EI: 0, SN: 0, TF: 0, JP: 0 };
-    var max = { EI: 0, SN: 0, TF: 0, JP: 0 };
-
-    QUESTIONS.forEach(function (q, i) {
-      max[q.axis] += 2;
-      var v = state.answers[i];
-      if (v == null) return;
-      sums[q.axis] += (v - 3) * q.sign;
-    });
-
-    var code = "";
-    var axes = [];
-    ["EI", "SN", "TF", "JP"].forEach(function (key) {
-      var sum = sums[key];
-      var meta = AXES[key];
-      var isFirst = sum >= 0;
-      var winner = isFirst ? meta.first : meta.second;
-      var strength = Math.round(50 + (Math.abs(sum) / max[key]) * 50);
-      code += winner.code;
-      axes.push({
-        first: meta.first, second: meta.second,
-        isFirst: isFirst, winnerName: winner.name, strength: strength,
-      });
-    });
-    return { code: code, axes: axes };
+    if (state.index > 0) { state.index--; renderQuestion(); }
   }
 
   // --- Экран результата ---
-  function showResult() {
-    var result = computeResult();
-    var type = TYPES[result.code];
-    var theme = GROUP_THEME[type.group] || { color: "#5b6ee1", color2: "#8b5cf6" };
+  function renderResult(res) {
+    var r = screens.result;
+    r.style.setProperty("--type-color", res.themeColor);
+    r.style.setProperty("--type-color-2", res.themeColor2);
 
-    screens.result.style.setProperty("--type-color", theme.color);
-    screens.result.style.setProperty("--type-color-2", theme.color2);
+    document.getElementById("result-emoji").textContent = res.emoji;
+    document.getElementById("result-code").textContent = res.code;
+    document.getElementById("result-title").textContent = res.title;
+    document.getElementById("result-group").textContent = res.badge;
+    document.getElementById("result-summary").textContent = res.summary;
 
-    document.getElementById("result-emoji").textContent = TYPE_EMOJI[result.code] || "🧩";
-    document.getElementById("result-code").textContent = result.code;
-    document.getElementById("result-title").textContent = type.title;
-    document.getElementById("result-group").textContent = type.group;
-    document.getElementById("result-summary").textContent = type.summary;
-
-    // Шкалы
-    var axesBox = document.getElementById("result-axes");
-    axesBox.innerHTML = "";
+    var barsBox = document.getElementById("result-axes");
+    barsBox.innerHTML = "";
     var fills = [];
-    result.axes.forEach(function (a) {
-      var wrap = document.createElement("div");
-      wrap.className = "axis";
-
-      var labels = document.createElement("div");
-      labels.className = "axis-labels";
-      var left = document.createElement("span");
-      left.className = "axis-pole" + (a.isFirst ? " win" : "");
-      left.textContent = a.first.code + " · " + a.first.name;
-      var right = document.createElement("span");
-      right.className = "axis-pole" + (!a.isFirst ? " win" : "");
-      right.textContent = a.second.name + " · " + a.second.code;
-      labels.appendChild(left);
-      labels.appendChild(right);
-
-      var track = document.createElement("div");
-      track.className = "axis-track";
-      var fill = document.createElement("div");
-      fill.className = "axis-fill " + (a.isFirst ? "first" : "second");
-      track.appendChild(fill);
-      fills.push({ node: fill, w: a.strength });
-
-      var strength = document.createElement("div");
-      strength.className = "axis-strength";
-      strength.textContent = a.winnerName + " · " + a.strength + "%";
-
-      wrap.appendChild(labels);
-      wrap.appendChild(track);
-      wrap.appendChild(strength);
-      axesBox.appendChild(wrap);
+    res.bars.forEach(function (bar) {
+      var node = bar.kind === "axis" ? axisBar(bar, fills) : meterBar(bar, fills);
+      barsBox.appendChild(node);
     });
 
-    // Разделы
     var sections = document.getElementById("result-sections");
     sections.innerHTML = "";
-    sections.appendChild(listSection("💪", "Сильные стороны", type.strengths));
-    sections.appendChild(textSection("💬", "Стиль общения", type.communication));
-    sections.appendChild(textSection("⚠️", "Возможные сложности", type.challenges));
-    sections.appendChild(textSection("🧭", "Подход к работе", type.work));
+    res.sections.forEach(function (s) {
+      sections.appendChild(s.items ? listSection(s) : textSection(s));
+    });
+
+    // сохраним для «поделиться»
+    state.lastResult = res;
 
     show("result");
-
-    // Анимация заполнения шкал после показа
     setTimeout(function () {
       fills.forEach(function (f) { f.node.style.width = f.w + "%"; });
     }, 120);
+  }
+
+  function axisBar(bar, fills) {
+    var wrap = document.createElement("div");
+    wrap.className = "axis";
+    var labels = document.createElement("div");
+    labels.className = "axis-labels";
+    var left = document.createElement("span");
+    left.className = "axis-pole" + (bar.winnerIsLeft ? " win" : "");
+    left.textContent = bar.leftCode + " · " + bar.leftName;
+    var right = document.createElement("span");
+    right.className = "axis-pole" + (!bar.winnerIsLeft ? " win" : "");
+    right.textContent = bar.rightName + " · " + bar.rightCode;
+    labels.appendChild(left);
+    labels.appendChild(right);
+
+    var track = document.createElement("div");
+    track.className = "axis-track";
+    var fill = document.createElement("div");
+    fill.className = "axis-fill " + (bar.winnerIsLeft ? "first" : "second");
+    track.appendChild(fill);
+    fills.push({ node: fill, w: bar.pct });
+
+    var strength = document.createElement("div");
+    strength.className = "axis-strength";
+    strength.textContent = bar.winnerName + " · " + bar.pct + "%";
+
+    wrap.appendChild(labels);
+    wrap.appendChild(track);
+    wrap.appendChild(strength);
+    return wrap;
+  }
+
+  function meterBar(bar, fills) {
+    var wrap = document.createElement("div");
+    wrap.className = "meter" + (bar.highlight ? " meter--top" : "");
+    var head = document.createElement("div");
+    head.className = "meter-head";
+    var label = document.createElement("span");
+    label.textContent = bar.label;
+    var pct = document.createElement("span");
+    pct.className = "meter-pct";
+    pct.textContent = bar.pct + "%";
+    head.appendChild(label);
+    head.appendChild(pct);
+
+    var track = document.createElement("div");
+    track.className = "axis-track";
+    var fill = document.createElement("div");
+    fill.className = "axis-fill first";
+    track.appendChild(fill);
+    fills.push({ node: fill, w: bar.pct });
+
+    wrap.appendChild(head);
+    wrap.appendChild(track);
+    return wrap;
   }
 
   function sectionHead(icon, title) {
@@ -210,23 +271,21 @@
     head.appendChild(h);
     return head;
   }
-
-  function textSection(icon, title, text) {
+  function textSection(s) {
     var box = document.createElement("div");
     box.className = "section";
-    box.appendChild(sectionHead(icon, title));
+    box.appendChild(sectionHead(s.icon, s.title));
     var p = document.createElement("p");
-    p.textContent = text;
+    p.textContent = s.text;
     box.appendChild(p);
     return box;
   }
-
-  function listSection(icon, title, items) {
+  function listSection(s) {
     var box = document.createElement("div");
     box.className = "section";
-    box.appendChild(sectionHead(icon, title));
+    box.appendChild(sectionHead(s.icon, s.title));
     var ul = document.createElement("ul");
-    items.forEach(function (it) {
+    s.items.forEach(function (it) {
       var li = document.createElement("li");
       li.textContent = it;
       ul.appendChild(li);
@@ -237,23 +296,21 @@
 
   // --- Поделиться ---
   function shareResult() {
-    var code = document.getElementById("result-code").textContent;
-    var title = document.getElementById("result-title").textContent;
+    var res = state.lastResult;
+    if (!res) return;
     var url = location.href.split("#")[0].split("?")[0];
-    var text = "Мой тип личности — " + code + " (" + title + "). Пройди тест и узнай свой:";
+    var text = "Мой результат — " + res.code + " (" + res.title + "), тест «" +
+      state.test.title + "». Пройди и узнай свой:";
     if (navigator.share) {
-      navigator.share({ title: "Тест типа личности", text: text, url: url }).catch(function () {});
+      navigator.share({ title: "Тесты типа личности", text: text, url: url }).catch(function () {});
       return;
     }
     copyText(text + " " + url);
   }
-
   function copyText(t) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(t).then(showShareHint, function () { fallbackCopy(t); });
-    } else {
-      fallbackCopy(t);
-    }
+    } else { fallbackCopy(t); }
   }
   function fallbackCopy(t) {
     try {
@@ -263,37 +320,35 @@
       document.execCommand("copy");
       document.body.removeChild(ta);
       showShareHint();
-    } catch (e) { /* тихо игнорируем */ }
+    } catch (e) {}
   }
   function showShareHint() {
     el.shareHint.hidden = false;
     setTimeout(function () { el.shareHint.hidden = true; }, 2500);
   }
 
-  function startTest() {
-    state.index = 0;
-    state.answers = new Array(QUESTIONS.length).fill(null);
-    show("quiz");
-    renderQuestion();
-  }
   function restart() {
-    show("intro");
+    if (state.test) startTest(state.test);
+  }
+  function toChooser() {
+    state.test = null;
+    show("chooser");
   }
 
-  // --- Управление клавишами ---
+  // --- Клавиатура ---
   document.addEventListener("keydown", function (e) {
     if (!screens.quiz.classList.contains("hidden")) {
       if (e.key >= "1" && e.key <= "5") { selectAnswer(Number(e.key)); }
       else if (e.key === "Backspace") { e.preventDefault(); goBack(); }
-    } else if (!screens.intro.classList.contains("hidden")) {
-      if (e.key === "Enter") { startTest(); }
     }
   });
 
   // --- Инициализация ---
   buildScale();
-  document.getElementById("btn-start").addEventListener("click", startTest);
+  renderChooser();
   el.back.addEventListener("click", goBack);
   document.getElementById("btn-restart").addEventListener("click", restart);
   document.getElementById("btn-share").addEventListener("click", shareResult);
+  document.getElementById("btn-other").addEventListener("click", toChooser);
+  document.getElementById("btn-quit").addEventListener("click", toChooser);
 })();
