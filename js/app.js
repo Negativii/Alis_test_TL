@@ -6,7 +6,7 @@
 (function () {
   "use strict";
 
-  var TESTS = [MBTI_TEST, ENNEAGRAM_TEST];
+  var TESTS = [MBTI_16P_TEST, MBTI_TEST, BELBIN_TEST, ENNEAGRAM_TEST];
 
   var SCALE = [
     { value: 1, tone: "no",      size: 2 },
@@ -35,7 +35,6 @@
     progressText: document.getElementById("progress-text"),
     quizTitle: document.getElementById("quiz-title"),
     back: document.getElementById("btn-back"),
-    shareHint: document.getElementById("share-hint"),
   };
 
   function show(name) {
@@ -194,9 +193,6 @@
       sections.appendChild(s.items ? listSection(s) : textSection(s));
     });
 
-    // сохраним для «поделиться»
-    state.lastResult = res;
-
     show("result");
     setTimeout(function () {
       fills.forEach(function (f) { f.node.style.width = f.w + "%"; });
@@ -294,39 +290,6 @@
     return box;
   }
 
-  // --- Поделиться ---
-  function shareResult() {
-    var res = state.lastResult;
-    if (!res) return;
-    var url = location.href.split("#")[0].split("?")[0];
-    var text = "Мой результат — " + res.code + " (" + res.title + "), тест «" +
-      state.test.title + "». Пройди и узнай свой:";
-    if (navigator.share) {
-      navigator.share({ title: "Тесты типа личности", text: text, url: url }).catch(function () {});
-      return;
-    }
-    copyText(text + " " + url);
-  }
-  function copyText(t) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(t).then(showShareHint, function () { fallbackCopy(t); });
-    } else { fallbackCopy(t); }
-  }
-  function fallbackCopy(t) {
-    try {
-      var ta = document.createElement("textarea");
-      ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
-      document.body.appendChild(ta); ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      showShareHint();
-    } catch (e) {}
-  }
-  function showShareHint() {
-    el.shareHint.hidden = false;
-    setTimeout(function () { el.shareHint.hidden = true; }, 2500);
-  }
-
   function restart() {
     if (state.test) startTest(state.test);
   }
@@ -348,7 +311,6 @@
   renderChooser();
   el.back.addEventListener("click", goBack);
   document.getElementById("btn-restart").addEventListener("click", restart);
-  document.getElementById("btn-share").addEventListener("click", shareResult);
   document.getElementById("btn-other").addEventListener("click", toChooser);
   document.getElementById("btn-quit").addEventListener("click", toChooser);
 })();

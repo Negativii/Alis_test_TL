@@ -60,7 +60,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 18px;
-  padding: 28px 16px;
+  padding: 24px 14px;
   background: radial-gradient(1200px 700px at 50% -10%, var(--bg-2), var(--bg));
   color: var(--text);
   font-family: var(--font);
@@ -92,14 +92,15 @@ body {
 /* ---- Карточка ---- */
 .card {
   width: 100%;
-  max-width: 640px;
+  max-width: 430px;       /* фиксированное «окно» — одинаково на телефоне и десктопе */
+  min-height: 470px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 38px;
+  padding: 30px 26px;
 }
-@media (max-width: 560px) { .card { padding: 24px; border-radius: 16px; } }
+@media (max-width: 480px) { .card { padding: 22px 18px; border-radius: 16px; } }
 
 .hidden { display: none !important; }
 
@@ -175,17 +176,16 @@ h3 { font-size: 0.98rem; font-weight: 700; margin: 0; }
 }
 
 /* ---- Шкала ответов (кружки) ---- */
+/* Раскладка: подписи сверху (слева/справа), кружки — на всю ширину.
+   Так шкала всегда влезает в узкое окно и не обрезается. */
 .scale {
-  display: flex; align-items: center; justify-content: center; gap: 14px;
-  margin-bottom: 26px;
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 8px 10px; margin-bottom: 26px;
 }
-.scale-end {
-  flex: 0 0 auto; font-size: 0.85rem; font-weight: 600; color: var(--muted);
-  width: 72px;
-}
-.scale-end--no { text-align: right; color: color-mix(in srgb, var(--c-no) 75%, var(--muted)); }
-.scale-end--yes { text-align: left; color: color-mix(in srgb, var(--c-yes) 75%, var(--muted)); }
-.scale-circles { display: flex; align-items: center; gap: 12px; }
+#scale-left  { order: 1; flex: 1 1 40%; text-align: left; }
+#scale-right { order: 2; flex: 1 1 40%; text-align: right; }
+.scale-end { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+.scale-circles { order: 3; flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; }
 
 .circle {
   --c: var(--c-neutral);
@@ -207,18 +207,14 @@ h3 { font-size: 0.98rem; font-weight: 700; margin: 0; }
 .circle.sz-1 { width: 42px; height: 42px; }
 .circle.sz-0 { width: 34px; height: 34px; }
 @media (max-width: 560px) {
-  .scale { gap: 6px; }
-  .scale-end { width: 58px; font-size: 0.78rem; }
-  .scale-circles { gap: 8px; }
-  .circle.sz-2 { width: 44px; height: 44px; }
-  .circle.sz-1 { width: 37px; height: 37px; }
-  .circle.sz-0 { width: 30px; height: 30px; }
+  .circle.sz-2 { width: 46px; height: 46px; }
+  .circle.sz-1 { width: 38px; height: 38px; }
+  .circle.sz-0 { width: 31px; height: 31px; }
 }
 @media (max-width: 360px) {
-  .scale-circles { gap: 5px; }
-  .circle.sz-2 { width: 38px; height: 38px; }
-  .circle.sz-1 { width: 32px; height: 32px; }
-  .circle.sz-0 { width: 27px; height: 27px; }
+  .circle.sz-2 { width: 40px; height: 40px; }
+  .circle.sz-1 { width: 33px; height: 33px; }
+  .circle.sz-0 { width: 28px; height: 28px; }
 }
 
 .quiz-nav { display: flex; align-items: center; justify-content: space-between; }
@@ -266,7 +262,7 @@ h3 { font-size: 0.98rem; font-weight: 700; margin: 0; }
 .axis-strength { font-size: 0.8rem; color: var(--muted); margin-top: 6px; text-align: center; font-weight: 600; }
 
 /* ---- Разделы описания ---- */
-.result-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 30px; text-align: left; }
+.result-sections { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 30px; text-align: left; }
 @media (max-width: 560px) { .result-sections { grid-template-columns: 1fr; } }
 .section {
   background: var(--card-2); border: 1px solid var(--border);
@@ -285,7 +281,7 @@ h3 { font-size: 0.98rem; font-weight: 700; margin: 0; }
 .share-hint { margin-top: 12px; font-size: 0.85rem; color: var(--c-yes); font-weight: 600; }
 
 /* ---- Подвал ---- */
-.foot { max-width: 640px; text-align: center; color: var(--muted); font-size: 0.78rem; opacity: 0.8; }
+.foot { max-width: 430px; text-align: center; color: var(--muted); font-size: 0.78rem; opacity: 0.8; }
 
 /* ---- Анимации появления ---- */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
@@ -336,8 +332,8 @@ h3 { font-size: 0.98rem; font-weight: 700; margin: 0; }
 .q-prompt.q-prompt--hint { font-size: 0.95rem; font-weight: 600; color: var(--muted); text-align: center; min-height: 0; margin-bottom: 22px; }
 
 /* Биполярный формат: формулировки по краям крупнее и читаемее */
-.scale--bipolar .scale-end { width: auto; max-width: 130px; font-size: 0.98rem; font-weight: 700; color: var(--text); }
-@media (max-width: 560px) { .scale--bipolar .scale-end { max-width: 90px; font-size: 0.86rem; } }
+.scale--bipolar .scale-end { font-size: 0.98rem; font-weight: 700; color: var(--text); line-height: 1.25; }
+@media (max-width: 480px) { .scale--bipolar .scale-end { font-size: 0.9rem; } }
 
 /* ============================================================
    Столбики результата эннеаграммы (метры)
