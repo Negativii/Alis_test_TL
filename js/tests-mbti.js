@@ -1,9 +1,11 @@
 /* ============================================================
-   Тест MBTI — 16 типов личности.
-   Формат по мотивам открытого OEJTS: 32 биполярных вопроса,
-   ответ 1..5 (левая формулировка → правая), 8 вопросов на шкалу,
-   порог 24 (как в OEJTS: >24 → E/N/T/P, иначе I/S/F/J).
-   Содержание — оригинальное (наши формулировки и описания).
+   Тест «Тип личности (MBTI)» — настоящий открытый OEJTS 1.2.
+   32 биполярных пункта, ответ 1..5, точные формулы подсчёта
+   (Open Extended Jungian Type Scales 1.2, Eric Jorgenson).
+   Вопросы — русская адаптация оригинала под лицензией
+   Creative Commons BY-NC-SA 4.0 (см. подпись в подвале сайта).
+   Здесь же общие для MBTI данные (типы, темы, эмодзи, шкалы),
+   которые переиспользует tests-16p.js — грузить этот файл ДО него.
    ============================================================ */
 
 var MBTI_GROUP_THEME = {
@@ -123,46 +125,6 @@ var MBTI_TYPES = {
     work: "Хорош в живой работе с людьми и событиями." },
 };
 
-// 32 биполярных вопроса. pole5 — буква, к которой тянет ПРАВАЯ формулировка (ответ 5).
-var MBTI_QUESTIONS = [
-  // EI
-  { axis: "EI", pole5: "E", left: "Держусь в стороне", right: "Легко знакомлюсь" },
-  { axis: "EI", pole5: "I", left: "Заряжаюсь среди людей", right: "Заряжаюсь в одиночестве" },
-  { axis: "EI", pole5: "E", left: "Сначала обдумываю", right: "Сразу высказываюсь" },
-  { axis: "EI", pole5: "I", left: "Широкий круг общения", right: "Узкий круг близких" },
-  { axis: "EI", pole5: "E", left: "Тихий вечер дома", right: "Шумная компания" },
-  { axis: "EI", pole5: "I", left: "Говорю больше", right: "Слушаю больше" },
-  { axis: "EI", pole5: "E", left: "Скорее сдержанный", right: "Скорее общительный" },
-  { axis: "EI", pole5: "I", left: "Люблю внимание к себе", right: "Избегаю внимания" },
-  // SN
-  { axis: "SN", pole5: "N", left: "Факты и детали", right: "Идеи и смыслы" },
-  { axis: "SN", pole5: "S", left: "Фантазирую о будущем", right: "Замечаю, что происходит сейчас" },
-  { axis: "SN", pole5: "N", left: "Практичный", right: "Мечтательный" },
-  { axis: "SN", pole5: "S", left: "Ищу скрытый смысл", right: "Верю тому, что вижу" },
-  { axis: "SN", pole5: "N", left: "Конкретные примеры", right: "Общие концепции" },
-  { axis: "SN", pole5: "S", left: "Меня увлекают теории", right: "Меня увлекает практика" },
-  { axis: "SN", pole5: "N", left: "Реалист", right: "Мечтатель" },
-  { axis: "SN", pole5: "S", left: "Живу воображением", right: "Живу настоящим" },
-  // TF
-  { axis: "TF", pole5: "T", left: "Слушаю сердце", right: "Слушаю голову" },
-  { axis: "TF", pole5: "F", left: "Важнее справедливость", right: "Важнее сострадание" },
-  { axis: "TF", pole5: "T", left: "Щажу чувства людей", right: "Говорю правду прямо" },
-  { axis: "TF", pole5: "F", left: "Решаю головой", right: "Решаю сердцем" },
-  { axis: "TF", pole5: "T", left: "Ценю гармонию", right: "Ценю истину" },
-  { axis: "TF", pole5: "F", left: "Объективный анализ", right: "Забота о людях" },
-  { axis: "TF", pole5: "T", left: "Сопереживаю", right: "Рассуждаю логически" },
-  { axis: "TF", pole5: "F", left: "Критика — это нормально", right: "Боюсь задеть человека" },
-  // JP
-  { axis: "JP", pole5: "P", left: "Всё по плану", right: "Как получится" },
-  { axis: "JP", pole5: "J", left: "Действую спонтанно", right: "Действую по расписанию" },
-  { axis: "JP", pole5: "P", left: "Люблю порядок", right: "Люблю свободу" },
-  { axis: "JP", pole5: "J", left: "Оставляю выбор открытым", right: "Решаю заранее" },
-  { axis: "JP", pole5: "P", left: "Списки задач", right: "Гибкий график" },
-  { axis: "JP", pole5: "J", left: "Тяну до дедлайна", right: "Делаю заранее" },
-  { axis: "JP", pole5: "P", left: "Организованный", right: "Спонтанный" },
-  { axis: "JP", pole5: "J", left: "Импровизирую", right: "Планирую" },
-];
-
 var MBTI_AXES = {
   EI: { left: { code: "E", name: "Экстраверсия" }, right: { code: "I", name: "Интроверсия" } },
   SN: { left: { code: "S", name: "Сенсорика" },    right: { code: "N", name: "Интуиция" } },
@@ -170,40 +132,79 @@ var MBTI_AXES = {
   JP: { left: { code: "J", name: "Планирование" }, right: { code: "P", name: "Гибкость" } },
 };
 
+/* 32 пункта OEJTS 1.2 (Q1..Q32) — русская адаптация оригинала.
+   value 1 = левая формулировка, value 5 = правая. Порядок важен:
+   формулы подсчёта ссылаются на номера вопросов. */
+var MBTI_QUESTIONS = [
+  { left: "Составляю списки", right: "Полагаюсь на память" },                              // Q1  JP
+  { left: "Скептичен", right: "Хочу верить" },                                             // Q2  FT
+  { left: "Скучаю в одиночестве", right: "Нуждаюсь в одиночестве" },                        // Q3  IE
+  { left: "Принимаю вещи как есть", right: "Недоволен тем, как всё устроено" },             // Q4  SN
+  { left: "Держу комнату в порядке", right: "Кладу вещи куда попало" },                     // Q5  JP
+  { left: "«Бездушная логика» — это плохо", right: "Хочу мыслить чётко, как машина" },      // Q6  FT
+  { left: "Энергичный", right: "Спокойный, размеренный" },                                 // Q7  IE
+  { left: "Люблю тесты с выбором ответа", right: "Люблю развёрнутые ответы" },              // Q8  SN
+  { left: "Хаотичный", right: "Организованный" },                                          // Q9  JP
+  { left: "Меня легко задеть", right: "Толстокожий" },                                      // Q10 FT
+  { left: "Лучше работаю в группе", right: "Лучше работаю один" },                          // Q11 IE
+  { left: "Сосредоточен на настоящем", right: "Сосредоточен на будущем" },                  // Q12 SN
+  { left: "Планирую заранее", right: "Планирую в последний момент" },                       // Q13 JP
+  { left: "Хочу уважения людей", right: "Хочу их любви" },                                  // Q14 FT
+  { left: "Устаю от вечеринок", right: "Завожусь на вечеринках" },                          // Q15 IE
+  { left: "Сливаюсь с окружением", right: "Выделяюсь" },                                    // Q16 SN
+  { left: "Оставляю варианты открытыми", right: "Связываю себя обязательствами" },          // Q17 JP
+  { left: "Хочу хорошо чинить вещи", right: "Хочу хорошо «чинить» людей" },                 // Q18 FT
+  { left: "Больше говорю", right: "Больше слушаю" },                                        // Q19 IE
+  { left: "Рассказываю, что произошло", right: "Рассказываю, что это значило" },            // Q20 SN
+  { left: "Берусь за дело сразу", right: "Откладываю на потом" },                           // Q21 JP
+  { left: "Следую сердцу", right: "Следую голове" },                                        // Q22 FT
+  { left: "Остаюсь дома", right: "Иду гулять в люди" },                                     // Q23 IE
+  { left: "Хочу общую картину", right: "Хочу детали" },                                     // Q24 SN
+  { left: "Импровизирую", right: "Готовлюсь заранее" },                                     // Q25 JP
+  { left: "Мораль строю на справедливости", right: "Мораль строю на сострадании" },         // Q26 FT
+  { left: "Мне трудно громко крикнуть", right: "Легко окликаю людей издалека" },            // Q27 IE
+  { left: "Теоретик", right: "Практик" },                                                  // Q28 SN
+  { left: "Усердно работаю", right: "Усердно отдыхаю" },                                    // Q29 JP
+  { left: "Неловко с эмоциями", right: "Ценю эмоции" },                                     // Q30 FT
+  { left: "Люблю выступать перед людьми", right: "Избегаю публичных выступлений" },         // Q31 IE
+  { left: "Люблю знать «кто? что? когда?»", right: "Люблю знать «почему?»" },               // Q32 SN
+];
+
 var MBTI_TEST = {
   id: "mbti",
   title: "Тип личности (MBTI)",
-  subtitle: "16 типов · по мотивам открытого OEJTS",
-  emoji: "🧩",
+  subtitle: "16 типов · открытый тест OEJTS 1.2",
+  emoji: "🧭",
   accent: "#5b6ee1",
   accent2: "#8b5cf6",
   format: "bipolar",
-  lead: "32 пары утверждений. Для каждой выбери, что тебе ближе. В конце — твой тип из 16 по системе MBTI.",
+  lead: "Настоящий открытый тест OEJTS: 32 пары утверждений. Для каждой выбери, что тебе ближе. В конце — твой тип из 16 по системе MBTI.",
   meta: "32 вопроса · около 5 минут",
   questions: MBTI_QUESTIONS,
 
+  // Точные формулы OEJTS 1.2 (порог 24: >24 → E/N/T/P, иначе I/S/F/J)
   score: function (answers) {
-    var reference = { EI: "E", SN: "N", TF: "T", JP: "P" };
-    var sums = { EI: 0, SN: 0, TF: 0, JP: 0 };
-    MBTI_QUESTIONS.forEach(function (q, i) {
-      var v = answers[i];
-      if (v == null) v = 3;
-      // вклад в сторону референсной буквы (E/N/T/P)
-      sums[q.axis] += (q.pole5 === reference[q.axis]) ? v : (6 - v);
-    });
+    var q = function (n) { var v = answers[n - 1]; return (v == null) ? 3 : v; };
+    var IE = 30 - q(3) - q(7) - q(11) + q(15) - q(19) + q(23) + q(27) - q(31);
+    var SN = 12 + q(4) + q(8) + q(12) + q(16) + q(20) - q(24) - q(28) + q(32);
+    var FT = 30 - q(2) + q(6) + q(10) - q(14) - q(18) + q(22) - q(26) - q(30);
+    var JP = 18 + q(1) + q(5) - q(9) + q(13) - q(17) + q(21) - q(25) + q(29);
+
+    var scored = [
+      { key: "EI", val: IE, high: "E", low: "I" },
+      { key: "SN", val: SN, high: "N", low: "S" },
+      { key: "TF", val: FT, high: "T", low: "F" },
+      { key: "JP", val: JP, high: "P", low: "J" },
+    ];
 
     var code = "";
     var bars = [];
-    var order = ["EI", "SN", "TF", "JP"];
-    // порядок букв в коде MBTI
-    order.forEach(function (axis) {
-      var s = sums[axis];               // диапазон 8..40
-      var meta = MBTI_AXES[axis];
-      var refLetter = reference[axis];  // буква для s>24
-      var winner = s > 24 ? refLetter : (refLetter === meta.left.code ? meta.right.code : meta.left.code);
+    scored.forEach(function (a) {
+      var meta = MBTI_AXES[a.key];
+      var winner = a.val > 24 ? a.high : a.low;     // порог OEJTS = 24
       var winnerIsLeft = winner === meta.left.code;
       var winnerName = winnerIsLeft ? meta.left.name : meta.right.name;
-      var pct = Math.min(100, Math.round(50 + (Math.abs(s - 24) / 16) * 50));
+      var pct = Math.min(100, Math.round(50 + (Math.abs(a.val - 24) / 16) * 50)); // диапазон 8..40
       code += winner;
       bars.push({
         kind: "axis",
@@ -215,7 +216,6 @@ var MBTI_TEST = {
 
     var type = MBTI_TYPES[code];
     var theme = MBTI_GROUP_THEME[type.group] || { color: this.accent, color2: this.accent2 };
-
     return {
       emoji: MBTI_EMOJI[code] || "🧩",
       code: code,
